@@ -1,0 +1,39 @@
+[
+  {
+    "userId": 2,
+    "postId": 1
+  },
+  {
+    "userId": 3,
+    "postId": 1
+  }
+]
+
+// createOne: params PostId in url
+// req
+
+{
+    "userId": 1
+}
+
+// res
+// --
+
+
+// for deletion:
+// userId_postId?: LikesUserIdPostIdCompoundUniqueInput
+
+// export type LikesUserIdPostIdCompoundUniqueInput = {
+//     userId: number
+//     postId: number
+//   }
+
+// delete: params PostId in url
+// req
+
+{
+    "userId": 1
+}
+
+// res
+// --

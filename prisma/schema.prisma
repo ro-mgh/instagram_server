@@ -1,0 +1,60 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int         @default(autoincrement()) @id
+  createdAt    DateTime    @default(now())
+  email        String      @unique
+  username     String
+  firebase     String?
+  name         String
+  avatar       String?
+  posts        Post[]
+  followingIds Following[]
+}
+
+model Post {
+  id        Int        @default(autoincrement()) @id
+  createdAt DateTime   @default(now())
+  image     String
+  author    User       @relation(fields: [authorId], references: [id])
+  authorId  Int
+  comments  Comments[]
+  likes     Likes[]
+}
+
+model Following {
+  user        User @relation(fields: [userId], references: [id])
+  userId      Int
+  // following   User @relation(fields: [followingId], references: [id])
+  followingId Int
+
+  @@id([userId, followingId])
+  @@unique([userId, followingId])
+}
+
+model Likes {
+  user   User @relation(fields: [userId], references: [id])
+  userId Int
+  post   Post @relation(fields: [postId], references: [id])
+  postId Int
+
+  @@id([userId, postId])
+  @@unique([userId, postId])
+}
+
+model Comments {
+  id        Int      @default(autoincrement()) @id
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  comment   String
+  createdAt DateTime @default(now())
+}
