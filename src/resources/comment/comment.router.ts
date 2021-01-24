@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createOne } from "./comment.controllers";
+import { createOne, getMany } from "./comment.controllers";
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router
   .post(createOne);
 
 // /comment/:id
-// router.route("/:id").get(getOne);
+router.route("/:id").get(getMany);
 //   .put(controllers.updateOne);
 //   .delete(controllers.removeOne);
 

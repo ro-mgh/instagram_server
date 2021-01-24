@@ -17,6 +17,8 @@ model User {
   avatar       String?
   posts        Post[]
   followingIds Following[]
+
+  @@index([id])
 }
 
 model Post {
@@ -25,8 +27,11 @@ model Post {
   image     String
   author    User       @relation(fields: [authorId], references: [id])
   authorId  Int
+  text      String?
   comments  Comments[]
   likes     Likes[]
+
+  @@index([authorId])
 }
 
 model Following {
@@ -46,6 +51,7 @@ model Likes {
   postId Int
 
   @@id([userId, postId])
+  @@index([postId])
   @@unique([userId, postId])
 }
 
@@ -57,4 +63,6 @@ model Comments {
   postId    Int
   comment   String
   createdAt DateTime @default(now())
+
+  @@index([postId])
 }
