@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const createOne = async (req: Request, res: Response) => {
   try {
-    console.log(req);
     const result = await prisma.user.create({
       data: {
         ...req.body,
@@ -18,8 +18,27 @@ export const createOne = async (req: Request, res: Response) => {
 
 export const getMany = async (req: Request, res: Response) => {
   try {
-    const users = await prisma.user.findMany();
-    res.status(200).json(users);
+    if ((<any>req).user) {
+      const userId = (<any>req).user; // id of user
+      const userFollowing = await prisma.following.findMany({
+        where: { userId: userId },
+        select: { followingId: true },
+      });
+      const userFollowingArr =
+        userFollowing.map((record) => {
+          return record.followingId;
+        }) || [];
+      const users = await prisma.user.findMany({
+        where: {
+          id: {
+            notIn: [...userFollowingArr, userId],
+          },
+        },
+      });
+      res.status(200).json(users);
+    } else {
+      res.status(400).json({ error: "Auth error" });
+    }
   } catch (e) {
     res.status(400).json({ error: e });
   }
@@ -31,7 +50,7 @@ export const getOne = async (req: Request, res: Response) => {
     const { id } = req.params;
     const user = await prisma.user.findUnique({
       where: {
-        id: Number(id),
+        id: id,
       },
     });
     res.status(200).json(user);
@@ -44,12 +63,11 @@ export const updateOne = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const updatedUser = await prisma.user.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: { ...req.body },
     });
     res.status(200).json(updatedUser);
   } catch (e) {
-    console.log(req.params, req.body);
     res.status(400).json({ error: e });
   }
 };

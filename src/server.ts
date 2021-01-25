@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 // app.post("/signup", signup);
 // app.post("/signin", signin);
 
-// app.use("/", protect);
+app.use("/", protect);
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/like", likeRouter);

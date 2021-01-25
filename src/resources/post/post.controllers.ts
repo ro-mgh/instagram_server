@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const createOne = async (req: Request, res: Response) => {
   try {
-    console.log(req);
     const result = await prisma.post.create({
       data: {
         ...req.body,
@@ -27,110 +27,114 @@ export const getMany = async (req: Request, res: Response) => {
 
 export const getManyFromFollowing = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; // id of user
+    if ((<any>req).user) {
+      const userId = (<any>req).user; // id of user
 
-    //**** option 1 */
-    // const posts = await prisma.following.findMany({
-    //   where: {
-    //     userId: +id,
-    //   },
-    //   select: {
-    //     following: {
-    //       select: {
-    //         posts: {
-    //           select: {
-    //             id: true,
-    //             text: true,
-    //             image: true,
-    //             // comments: {
-    //             //   select: {
-    //             //     user: {
-    //             //       select: {
-    //             //         username: true,
-    //             //       },
-    //             //     },
-    //             //     comment: true,
-    //             //   },
-    //             // },
-    //             // likes: {
-    //             //   select: {
-    //             //     userId: true,
-    //             //   },
-    //             // },
-    //             // author: {
-    //             //   select: {
-    //             //     username: true,
-    //             //     id: true,
-    //             //   },
-    //             // },
-    //             createdAt: true,
-    //           },
-    //           orderBy: {
-    //             createdAt: "desc",
-    //           },
-    //         },
-    //       },
-    //     },
-    //   },
-    // });
+      //**** option 1 */
+      // const posts = await prisma.following.findMany({
+      //   where: {
+      //     userId: +id,
+      //   },
+      //   select: {
+      //     following: {
+      //       select: {
+      //         posts: {
+      //           select: {
+      //             id: true,
+      //             text: true,
+      //             image: true,
+      //             // comments: {
+      //             //   select: {
+      //             //     user: {
+      //             //       select: {
+      //             //         username: true,
+      //             //       },
+      //             //     },
+      //             //     comment: true,
+      //             //   },
+      //             // },
+      //             // likes: {
+      //             //   select: {
+      //             //     userId: true,
+      //             //   },
+      //             // },
+      //             // author: {
+      //             //   select: {
+      //             //     username: true,
+      //             //     id: true,
+      //             //   },
+      //             // },
+      //             createdAt: true,
+      //           },
+      //           orderBy: {
+      //             createdAt: "desc",
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+      // });
 
-    // res.status(200).json(posts);
+      // res.status(200).json(posts);
 
-    //**** option2 */
-    const user = await prisma.user.findUnique({
-      where: {
-        id: +id,
-      },
-      select: { followingIds: true },
-    });
-    if (user) {
-      // user => following => postsIds[]
-      // where with multiple fields
-
-      const followingArr = user.followingIds.map(({ followingId }) => {
-        return +followingId;
-      });
-      console.log(followingArr);
-      const followingPosts = await prisma.post.findMany({
+      //**** option2 */
+      const user = await prisma.user.findUnique({
         where: {
-          authorId: {
-            in: followingArr,
-          },
+          id: userId + "",
         },
-        select: {
-          id: true,
-          text: true,
-          image: true,
-          comments: {
-            select: {
-              user: {
-                select: {
-                  username: true,
-                },
-              },
-              comment: true,
-            },
-          },
-          likes: {
-            select: {
-              userId: true,
-            },
-          },
-          author: {
-            select: {
-              username: true,
-              id: true,
-            },
-          },
-          createdAt: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
+        select: { followingIds: true },
       });
-      res.status(200).json(followingPosts);
+      if (user) {
+        // user => following => postsIds[]
+        // where with multiple fields
+
+        const followingArr = user.followingIds.map(({ followingId }) => {
+          return followingId;
+        });
+        console.log(followingArr);
+        const followingPosts = await prisma.post.findMany({
+          where: {
+            authorId: {
+              in: followingArr,
+            },
+          },
+          select: {
+            id: true,
+            text: true,
+            image: true,
+            comments: {
+              select: {
+                user: {
+                  select: {
+                    username: true,
+                  },
+                },
+                comment: true,
+              },
+            },
+            likes: {
+              select: {
+                userId: true,
+              },
+            },
+            author: {
+              select: {
+                username: true,
+                id: true,
+              },
+            },
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+        res.status(200).json(followingPosts);
+      } else {
+        res.status(400).json({ error: "error" });
+      }
     } else {
-      res.status(400).json({ error: "error" });
+      res.status(400).json({ error: "Auth error" });
     }
   } catch (e) {
     res.status(400).json({ error: e });

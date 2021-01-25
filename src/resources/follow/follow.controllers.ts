@@ -4,14 +4,19 @@ const prisma = new PrismaClient();
 
 export const createOne = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const result = await prisma.following.create({
-      data: {
-        userId: req.body.userId,
-        followingId: +id,
-      },
-    });
-    res.status(200).end();
+    if ((<any>req).user) {
+      const userId = (<any>req).user;
+      const { id } = req.params;
+      const result = await prisma.following.create({
+        data: {
+          userId: userId,
+          followingId: id + "",
+        },
+      });
+      res.status(200).end();
+    } else {
+      res.status(400).json({ error: "Auth error" });
+    }
   } catch (e) {
     res.status(400).json({ error: e });
   }
@@ -19,16 +24,21 @@ export const createOne = async (req: Request, res: Response) => {
 
 export const removeOne = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const result = await prisma.following.delete({
-      where: {
-        userId_followingId: {
-          userId: req.body.userId,
-          followingId: +id,
+    if ((<any>req).user) {
+      const userId = (<any>req).user;
+      const { id } = req.params;
+      const result = await prisma.following.delete({
+        where: {
+          userId_followingId: {
+            userId: userId,
+            followingId: id + "",
+          },
         },
-      },
-    });
-    res.status(200).json(result);
+      });
+      res.status(200).json(result);
+    } else {
+      res.status(400).json({ error: "Auth error" });
+    }
   } catch (e) {
     res.status(400).json({ error: e });
   }

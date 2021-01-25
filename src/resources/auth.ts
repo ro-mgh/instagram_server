@@ -1,5 +1,6 @@
 import firebaseAdmin from "../../firebase/firebaseAdmin";
 import { Request, Response, NextFunction } from "express";
+
 import * as admin from "firebase-admin";
 
 export async function protect(req: Request, res: Response, next: NextFunction) {
@@ -20,18 +21,7 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
     const decodedToken: admin.auth.DecodedIdToken = await firebaseAdmin
       .auth()
       .verifyIdToken(token);
-    // console.log("decodedToken", JSON.stringify(decodedToken));
-
-    //get the usersId in res.locals
-
-    res.locals = {
-      ...res.locals,
-      uid: decodedToken.uid,
-      role: decodedToken.role,
-      name: decodedToken.name,
-      email: decodedToken.email,
-    };
-    // console.log(res.locals);
+    (<any>req).user = decodedToken.uid;
     return next();
   } catch (err) {
     console.error(`${err.code} -  ${err.message}`);
