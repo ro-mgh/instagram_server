@@ -52,6 +52,11 @@ export const getOne = async (req: Request, res: Response) => {
       where: {
         id: id,
       },
+      include: {
+        followingIds: true,
+        Following: true,
+        posts: true,
+      },
     });
     res.status(200).json(user);
   } catch (e) {

@@ -18,8 +18,41 @@ export const createOne = async (req: Request, res: Response) => {
 
 export const getMany = async (req: Request, res: Response) => {
   try {
-    const posts = await prisma.post.findMany();
-    res.status(200).json(posts);
+    if ((<any>req).user) {
+      const userId = (<any>req).user; // id of user
+      const user = await prisma.user.findUnique({
+        where: {
+          id: userId + "",
+        },
+        select: { followingIds: true },
+      });
+      if (user) {
+        const followingArr = user.followingIds.map(({ followingId }) => {
+          return followingId;
+        });
+        console.log(followingArr);
+        const explorePosts = await prisma.post.findMany({
+          where: {
+            authorId: {
+              notIn: [...followingArr, userId],
+            },
+          },
+          select: {
+            id: true,
+            image: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        });
+        res.status(200).json(explorePosts);
+      } else {
+        res.status(400).json({ error: "error" });
+      }
+    } else {
+      res.status(400).json({ error: "Auth error" });
+    }
   } catch (e) {
     res.status(400).json({ error: e });
   }
@@ -95,7 +128,7 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
         const followingPosts = await prisma.post.findMany({
           where: {
             authorId: {
-              in: followingArr,
+              in: [...followingArr, userId],
             },
           },
           select: {
