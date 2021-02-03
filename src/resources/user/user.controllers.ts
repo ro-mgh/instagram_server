@@ -19,20 +19,27 @@ export const createOne = async (req: Request, res: Response) => {
 export const getMany = async (req: Request, res: Response) => {
   try {
     if ((<any>req).user) {
-      const userId = (<any>req).user; // id of user
-      const userFollowing = await prisma.following.findMany({
-        where: { userId: userId },
-        select: { followingId: true },
-      });
-      const userFollowingArr =
-        userFollowing.map((record) => {
-          return record.followingId;
-        }) || [];
+      // const userId = (<any>req).user; // id of user
+      // const userFollowing = await prisma.following.findMany({
+      //   where: { userId: userId },
+      //   select: { followingId: true },
+      // });
+      // const userFollowingArr =
+      //   userFollowing.map((record) => {
+      //     return record.followingId;
+      //   }) || [];
+      // const users = await prisma.user.findMany({
+      //   where: {
+      //     id: {
+      //       notIn: [...userFollowingArr, userId],
+      //     },
+      //   },
+      // });
       const users = await prisma.user.findMany({
-        where: {
-          id: {
-            notIn: [...userFollowingArr, userId],
-          },
+        include: {
+          followingIds: true,
+          Following: true,
+          posts: true,
         },
       });
       res.status(200).json(users);

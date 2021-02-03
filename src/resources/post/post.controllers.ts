@@ -140,9 +140,11 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
                 user: {
                   select: {
                     username: true,
+                    id: true,
                   },
                 },
                 comment: true,
+                id: true,
               },
             },
             likes: {
@@ -154,6 +156,7 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
               select: {
                 username: true,
                 id: true,
+                avatar: true,
               },
             },
             createdAt: true,
@@ -164,7 +167,7 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
         });
         res.status(200).json(followingPosts);
       } else {
-        res.status(400).json({ error: "error" });
+        res.status(400).json([]);
       }
     } else {
       res.status(400).json({ error: "Auth error" });
@@ -180,6 +183,37 @@ export const getOne = async (req: Request, res: Response) => {
     const post = await prisma.post.findUnique({
       where: {
         id: Number(id),
+      },
+      select: {
+        id: true,
+        text: true,
+        image: true,
+
+        comments: {
+          select: {
+            user: {
+              select: {
+                username: true,
+                id: true,
+              },
+            },
+            comment: true,
+            id: true,
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        author: {
+          select: {
+            username: true,
+            id: true,
+            avatar: true,
+          },
+        },
+        createdAt: true,
       },
     });
     res.status(200).json(post);
