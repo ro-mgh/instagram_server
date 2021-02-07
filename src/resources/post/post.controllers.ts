@@ -30,23 +30,71 @@ export const getMany = async (req: Request, res: Response) => {
         const followingArr = user.followingIds.map(({ followingId }) => {
           return followingId;
         });
-        console.log(followingArr);
-        const explorePosts = await prisma.post.findMany({
-          where: {
-            authorId: {
-              notIn: [...followingArr, userId],
+
+        const coursorFromClient = req.params.id; //page
+
+        // if previous coursor comes from client => show the next data othervise default n items
+        if (!+coursorFromClient) {
+          const explorePosts = await prisma.post.findMany({
+            take: 9,
+            where: {
+              authorId: {
+                notIn: [...followingArr, userId],
+              },
             },
-          },
-          select: {
-            id: true,
-            image: true,
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-        res.status(200).json(explorePosts);
+            select: {
+              id: true,
+              image: true,
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
+
+          // if there are no post futher => do not send coursor
+          if (explorePosts.length === 9) {
+            const lastPostInResults = explorePosts[8]; // Remember: zero-based index! :)
+            const myCursor = lastPostInResults.id; //
+
+            res.status(200).json({ data: explorePosts, nextCursor: myCursor });
+          } else {
+            res.status(200).json({
+              data: explorePosts,
+            });
+          }
+        } else {
+          const explorePosts = await prisma.post.findMany({
+            take: 9,
+            skip: 1,
+            cursor: {
+              id: +coursorFromClient,
+            },
+            where: {
+              authorId: {
+                notIn: [...followingArr, userId],
+              },
+            },
+            select: {
+              id: true,
+              image: true,
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
+          if (explorePosts.length === 9) {
+            const lastPostInResults = explorePosts[8]; // Remember: zero-based index! :)
+            const myCursor = lastPostInResults.id; //
+
+            res.status(200).json({ data: explorePosts, nextCursor: myCursor });
+          } else {
+            res.status(200).json({
+              data: explorePosts,
+            });
+          }
+        }
       } else {
         res.status(400).json({ error: "error" });
       }
@@ -62,55 +110,6 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
   try {
     if ((<any>req).user) {
       const userId = (<any>req).user; // id of user
-
-      //**** option 1 */
-      // const posts = await prisma.following.findMany({
-      //   where: {
-      //     userId: +id,
-      //   },
-      //   select: {
-      //     following: {
-      //       select: {
-      //         posts: {
-      //           select: {
-      //             id: true,
-      //             text: true,
-      //             image: true,
-      //             // comments: {
-      //             //   select: {
-      //             //     user: {
-      //             //       select: {
-      //             //         username: true,
-      //             //       },
-      //             //     },
-      //             //     comment: true,
-      //             //   },
-      //             // },
-      //             // likes: {
-      //             //   select: {
-      //             //     userId: true,
-      //             //   },
-      //             // },
-      //             // author: {
-      //             //   select: {
-      //             //     username: true,
-      //             //     id: true,
-      //             //   },
-      //             // },
-      //             createdAt: true,
-      //           },
-      //           orderBy: {
-      //             createdAt: "desc",
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      // });
-
-      // res.status(200).json(posts);
-
-      //**** option2 */
       const user = await prisma.user.findUnique({
         where: {
           id: userId + "",
@@ -124,48 +123,124 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
         const followingArr = user.followingIds.map(({ followingId }) => {
           return followingId;
         });
-        console.log(followingArr);
-        const followingPosts = await prisma.post.findMany({
-          where: {
-            authorId: {
-              in: [...followingArr, userId],
+
+        const coursorFromClient = req.params.id; //page
+        // if previous coursor comes from client => show the next data othervise default n items
+        if (!+coursorFromClient) {
+          const followingPosts = await prisma.post.findMany({
+            take: 4,
+            where: {
+              authorId: {
+                in: [...followingArr, userId],
+              },
             },
-          },
-          select: {
-            id: true,
-            text: true,
-            image: true,
-            comments: {
-              select: {
-                user: {
-                  select: {
-                    username: true,
-                    id: true,
+            select: {
+              id: true,
+              text: true,
+              image: true,
+              comments: {
+                select: {
+                  user: {
+                    select: {
+                      username: true,
+                      id: true,
+                    },
                   },
+                  comment: true,
+                  id: true,
                 },
-                comment: true,
-                id: true,
+              },
+              likes: {
+                select: {
+                  userId: true,
+                },
+              },
+              author: {
+                select: {
+                  username: true,
+                  id: true,
+                  avatar: true,
+                },
+              },
+              createdAt: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
+          // if there are no post futher => do not send coursor
+          if (followingPosts.length === 4) {
+            const lastPostInResults = followingPosts[3]; // Remember: zero-based index! :)
+            const myCursor = lastPostInResults.id; //
+
+            res
+              .status(200)
+              .json({ data: followingPosts, nextCursor: myCursor });
+          } else {
+            res.status(200).json({
+              data: followingPosts,
+            });
+          }
+        } else {
+          const followingPosts = await prisma.post.findMany({
+            take: 4,
+            skip: 1,
+            cursor: {
+              id: +coursorFromClient,
+            },
+            where: {
+              authorId: {
+                in: [...followingArr, userId],
               },
             },
-            likes: {
-              select: {
-                userId: true,
+            select: {
+              id: true,
+              text: true,
+              image: true,
+              comments: {
+                select: {
+                  user: {
+                    select: {
+                      username: true,
+                      id: true,
+                    },
+                  },
+                  comment: true,
+                  id: true,
+                },
               },
-            },
-            author: {
-              select: {
-                username: true,
-                id: true,
-                avatar: true,
+              likes: {
+                select: {
+                  userId: true,
+                },
               },
+              author: {
+                select: {
+                  username: true,
+                  id: true,
+                  avatar: true,
+                },
+              },
+              createdAt: true,
             },
-            createdAt: true,
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-        });
-        res.status(200).json(followingPosts);
+            orderBy: {
+              createdAt: "desc",
+            },
+          });
+          // if there are no post futher => do not send coursor
+          if (followingPosts.length === 4) {
+            const lastPostInResults = followingPosts[3]; // Remember: zero-based index! :)
+            const myCursor = lastPostInResults.id; //
+
+            res
+              .status(200)
+              .json({ data: followingPosts, nextCursor: myCursor });
+          } else {
+            res.status(200).json({
+              data: followingPosts,
+            });
+          }
+        }
       } else {
         res.status(400).json([]);
       }

@@ -9,10 +9,13 @@ import {
 const router = Router();
 
 // /post/
-router.route("/").get(getMany).post(createOne);
+router.route("/").post(createOne);
+
+// /post/page/:id
+router.route("/page/:id").get(getMany);
 
 // /post/user/:id
-router.route("/user/:id").get(getManyFromFollowing);
+router.route("/user/page/:id").get(getManyFromFollowing);
 
 // /post/:id
 router.route("/:id").get(getOne);

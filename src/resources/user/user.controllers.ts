@@ -39,7 +39,11 @@ export const getMany = async (req: Request, res: Response) => {
         include: {
           followingIds: true,
           Following: true,
-          posts: true,
+          posts: {
+            orderBy: {
+              id: "desc",
+            },
+          },
         },
       });
       res.status(200).json(users);
