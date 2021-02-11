@@ -22,10 +22,6 @@ export const removeOne = async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await prisma.likes.delete({
       where: {
-        // userId: 4,
-        // postId: 4,
-        // userId: +req.body.userId,
-        // postId: +id,
         userId_postId: {
           userId: req.body.userId,
           postId: +id,
