@@ -10,7 +10,8 @@
         }
       ],
       "image": "495660743886.dkr.ecr.ap-northeast-2.amazonaws.com/insta-server:latest",
-      "essential": true
+      "essential": true,
+      "name": "insta-server"
     }
   ],
   "family": "test",
