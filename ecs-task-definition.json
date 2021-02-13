@@ -25,8 +25,8 @@
       "workingDirectory": null,
       "secrets": null,
       "dockerSecurityOptions": null,
-      "memory": 1000,
-      "memoryReservation": null,
+      "memory": null,
+      "memoryReservation": 1024,
       "volumesFrom": [],
       "stopTimeout": null,
       "image": "495660743886.dkr.ecr.ap-northeast-2.amazonaws.com/insta-server:latest",
@@ -50,10 +50,10 @@
     }
   ],
   "placementConstraints": [],
-  "memory": null,
+  "memory": "1024",
   "taskRoleArn": "arn:aws:iam::495660743886:role/ecsTaskExecutionRole",
   "compatibilities": ["EC2"],
-  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:495660743886:task-definition/insta-server:5",
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:495660743886:task-definition/insta-server:7",
   "family": "insta-server",
   "requiresAttributes": [
     {
@@ -61,6 +61,12 @@
       "targetType": null,
       "value": null,
       "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
     },
     {
       "targetId": null,
@@ -79,7 +85,7 @@
   "requiresCompatibilities": ["EC2"],
   "networkMode": null,
   "cpu": null,
-  "revision": 5,
+  "revision": 7,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
