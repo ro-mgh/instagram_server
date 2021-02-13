@@ -27,9 +27,11 @@ export const getMany = async (req: Request, res: Response) => {
         select: { followingIds: true },
       });
       if (user) {
-        const followingArr = user.followingIds.map(({ followingId }) => {
-          return followingId;
-        });
+        const followingArr = user.followingIds.map(
+          (user: { followingId: string }) => {
+            return user.followingId;
+          }
+        );
 
         const coursorFromClient = req.params.id; //page
 
@@ -120,9 +122,11 @@ export const getManyFromFollowing = async (req: Request, res: Response) => {
         // user => following => postsIds[]
         // where with multiple fields
 
-        const followingArr = user.followingIds.map(({ followingId }) => {
-          return followingId;
-        });
+        const followingArr = user.followingIds.map(
+          (user: { followingId: string }) => {
+            return user.followingId;
+          }
+        );
 
         const coursorFromClient = req.params.id; //page
         // if previous coursor comes from client => show the next data othervise default n items

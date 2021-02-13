@@ -1,0 +1,28 @@
+{
+  "executionRoleArn": "arn:aws:iam::495660743886:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "portMappings": [
+        {
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "containerPort": 3000
+        }
+      ],
+      "cpu": 0,
+      "memory": 700,
+      "image": "495660743886.dkr.ecr.ap-northeast-2.amazonaws.com/insta-server:latest",
+      "name": "insta-server",
+      "essential": true
+    }
+  ],
+  "taskRoleArn": "arn:aws:iam::495660743886:role/ecsTaskExecutionRole",
+  "compatibilities": ["EC2"],
+  "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:495660743886:task-definition/insta-server:1",
+  "family": "insta-server",
+  "requiresCompatibilities": ["EC2"],
+  "networkMode": null,
+  "cpu": null,
+  "revision": 1,
+  "status": "ACTIVE"
+}
