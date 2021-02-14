@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npm run build:live",
     "build": "tsc -p .",
-    "build:live": "nodemon --watch '*.ts' --exec 'ts-node' src/index.ts"
+    "build:live": "nodemon --watch '*.ts' --exec 'ts-node' src/index.ts",
+    "start:prod": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
