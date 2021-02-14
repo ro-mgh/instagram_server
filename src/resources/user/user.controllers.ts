@@ -35,6 +35,7 @@ export const getMany = async (req: Request, res: Response) => {
       res.status(400).json({ error: "Auth error" });
     }
   } catch (e) {
+    console.error(e);
     res.status(400).json({ error: e });
   }
 };
